@@ -5,8 +5,8 @@ const LOGO_SRC = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1B
 // ══════════════════════════════════════════════════
 //  CONFIGURAÇÃO — edite aqui email/senha do admin
 // ══════════════════════════════════════════════════
-const ADMIN_EMAIL    = "admin@nerIsrael.com";
-const ADMIN_PASSWORD = "admin123";
+const ADMIN_EMAIL    = "lennywacberg18@gmail.com";
+const ADMIN_PASSWORD = "ner2026";
 // ══════════════════════════════════════════════════
 
 const C = {
