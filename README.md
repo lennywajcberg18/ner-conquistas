@@ -1,31 +1,65 @@
-# Ner Israel — Programa de Conquistas
+# Ner Israel — Programa de Conquistas v2 (com backend real)
 
-App de pontos e recompensas para a Sinagoga Ner Israel, Perdizes – SP.
+## Passo a passo de setup
 
-## Como rodar localmente
+### 1. Variáveis de ambiente
+
+Crie um arquivo `.env` na raiz do projeto (nunca suba no GitHub):
+
+```
+REACT_APP_SUPABASE_URL=https://oifekqqpvnmextkrajoc.supabase.co
+REACT_APP_SUPABASE_KEY=sb_publishable_7VBdfmm1_gQUNdzrM3xLXg_ZcnnQGUh
+```
+
+### 2. Atualizar RLS no Supabase
+
+No Supabase → SQL Editor, rode o conteúdo de `sql/update-rls.sql`.
+
+### 3. Deploy das Edge Functions
+
+Instale o Supabase CLI:
+```bash
+npm install -g supabase
+supabase login
+supabase link --project-ref oifekqqpvnmextkrajoc
+```
+
+Configure os secrets das Edge Functions:
+```bash
+supabase secrets set RESEND_API_KEY=re_bWsNMhHd_91c2Cf2GJzyZEyBaPFZPQ7Ui
+supabase secrets set ADMIN_EMAIL=lennywajcberg18@gmail.com
+supabase secrets set APP_URL=https://ner-conquistas.vercel.app
+```
+
+Deploy das funções:
+```bash
+supabase functions deploy admin-action
+supabase functions deploy notify-admin
+```
+
+### 4. Rodar localmente
 
 ```bash
 npm install
 npm start
 ```
 
-## Deploy (Vercel)
+### 5. Deploy no Vercel
 
-1. Faça push deste repositório para o GitHub
-2. Importe o projeto em [vercel.com](https://vercel.com)
-3. Framework: **Create React App** — deploy automático
+No painel do Vercel, adicione as variáveis de ambiente:
+- `REACT_APP_SUPABASE_URL` = https://oifekqqpvnmextkrajoc.supabase.co
+- `REACT_APP_SUPABASE_KEY` = sb_publishable_7VBdfmm1_gQUNdzrM3xLXg_ZcnnQGUh
 
-## Configurar admin
+---
 
-Edite as linhas no topo de `src/App.jsx`:
+## Como funciona o fluxo completo
 
-```js
-const ADMIN_EMAIL    = "admin@nerIsrael.com";
-const ADMIN_PASSWORD = "admin123";
-```
+1. **Novo membro** → clica "Solicitar Convite" → preenche nome/email → admin recebe email
+2. **Admin aprova convite** → usuário é criado automaticamente no Supabase + email com senha enviado para o novo membro
+3. **Membro loga** → solicita pontos → admin recebe email de notificação → aprova no painel
+4. **Membro resgata prêmio** → admin aprova → pontos debitados + email de confirmação
 
 ## Stack
-
-- React 18 (Create React App)
-- Deploy: Vercel (gratuito)
-- Backend futuro: Supabase + Resend (emails reais)
+- React 18 + Supabase (auth + banco) + Resend (emails)
+- Edge Functions (Deno) para operações de admin
+- Deploy: Vercel (frontend) + Supabase (backend)
