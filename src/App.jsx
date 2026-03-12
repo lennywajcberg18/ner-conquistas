@@ -60,15 +60,32 @@ const Loader = () => (
 );
 
 const Login = ({ onInvite }) => {
-  const [email,setEmail] = useState("");
-  const [pw,setPw] = useState("");
-  const [err,setErr] = useState("");
-  const [loading,setLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState("");
+
   const go = async () => {
-    setErr(""); setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email:email.trim().toLowerCase(), password:pw });
-    if (error) { setErr("Email ou senha incorretos."); setLoading(false); }
+    if (!email) return;
+    setLoading(true); setErr("");
+    const { error } = await supabase.auth.signInWithOtp({
+      email: email.trim().toLowerCase(),
+      options: { emailRedirectTo: window.location.origin }
+    });
+    if (error) { setErr("Erro ao enviar email. Tente novamente."); setLoading(false); }
+    else setSent(true);
   };
+
+  if (sent) return (
+    <div style={{ minHeight:"100vh",background:"#0B1623",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",padding:24 }}>
+      <div style={{ fontSize:48,marginBottom:16 }}>📧</div>
+      <div style={{ color:"#F0F4FA",fontSize:18,fontWeight:600,marginBottom:8 }}>Verifique seu email!</div>
+      <div style={{ color:"#6B7FA0",fontSize:13,maxWidth:300,lineHeight:1.6 }}>
+        Enviamos um link de acesso para <strong style={{color:"#E2C57A"}}>{email}</strong>.<br/>Clique no link para entrar.
+      </div>
+    </div>
+  );
+
   return (
     <div style={{ minHeight:"100vh",background:"#0B1623",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:24 }}>
       <div style={{ width:"100%",maxWidth:340 }}>
@@ -78,10 +95,9 @@ const Login = ({ onInvite }) => {
         </div>
         <div style={{ background:"#111E2E",border:"1px solid #1C2E45",borderRadius:10,padding:"22px 20px" }}>
           <Inp label="Email" value={email} onChange={e=>{setEmail(e.target.value);setErr("")}} onKeyDown={e=>e.key==="Enter"&&go()} placeholder="seu@email.com" type="email" />
-          <Inp label="Senha" value={pw} onChange={e=>{setPw(e.target.value);setErr("")}} onKeyDown={e=>e.key==="Enter"&&go()} placeholder="..." type="password" />
           {err && <div style={{ color:"#FF8080",fontSize:12,marginBottom:12,marginTop:-8 }}>{err}</div>}
-          <button onClick={go} style={{ width:"100%",background:"linear-gradient(135deg,#C9A84C,#E2C57A)",color:"#0B1623",border:"none",padding:"11px",borderRadius:7,fontWeight:800,fontSize:14,cursor:"pointer" }}>
-            {loading?"Entrando...":"Entrar"}
+          <button onClick={go} disabled={!email||loading} style={{ width:"100%",background:email?"linear-gradient(135deg,#C9A84C,#E2C57A)":"#1C2E45",color:"#0B1623",border:"none",padding:"11px",borderRadius:7,fontWeight:800,fontSize:14,cursor:email?"pointer":"default" }}>
+            {loading?"Enviando...":"Enviar link de acesso →"}
           </button>
         </div>
         <div style={{ textAlign:"center",marginTop:16 }}>
