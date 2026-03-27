@@ -440,8 +440,14 @@ const AdminPanel = ({ profile, onLogout }) => {
   const toast_ = (msg,ok=true) => { setToast({msg,ok}); setTimeout(()=>setToast(null),3000); };
   const load = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase.functions.invoke("admin-action",{ body:{ action:"get_all" } });
-    if (data) { setReqs(data.requests||[]); setInvites(data.invites||[]); setMembers(data.members||[]); }
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-action",{ body:{ action:"get_all" } });
+      console.log("admin-action response:", { data, error });
+      if (error) { console.error("Edge function error:", error); }
+      else if (typeof data === "string") {
+        try { const parsed = JSON.parse(data); setReqs(parsed.requests||[]); setInvites(parsed.invites||[]); setMembers(parsed.members||[]); } catch(e) { console.error("Parse error:", e); }
+      } else if (data) { setReqs(data.requests||[]); setInvites(data.invites||[]); setMembers(data.members||[]); }
+    } catch(e) { console.error("Invoke error:", e); }
     setLoading(false);
   },[]);
   useEffect(()=>{ load(); },[load]);
