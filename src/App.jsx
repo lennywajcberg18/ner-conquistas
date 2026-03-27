@@ -601,7 +601,8 @@ const AdminPanel = ({ profile, onLogout }) => {
                       <div style={{ width:20,textAlign:"center",fontSize:11,color:"#6B7FA0" }}>{i+1}</div>
                       <Av ini={m.ini} sz={32} />
                       <div style={{ flex:1 }}><div style={{ fontSize:13 }}>{m.name}</div><div style={{ fontSize:10,color:"#6B7FA0" }}>{m.email}</div></div>
-                      <div style={{ fontWeight:700,fontSize:15 }}>{m.pts} pts</div>
+                      <div style={{ fontWeight:700,fontSize:15,marginRight:8 }}>{m.pts} pts</div>
+                      {!m.is_admin && <button onClick={async ()=>{ if(!window.confirm("Remover "+m.name+"?")) return; setActing(m.id); const { error } = await invokeAdmin({ action:"remove_member", memberId:m.id }); if(!error){ setMembers(prev=>prev.filter(x=>x.id!==m.id)); toast_("Removido"); } else toast_("Erro ao remover",false); setActing(null); }} disabled={acting===m.id} style={{ background:"transparent",color:"#FF7777",border:"1px solid #FF777766",padding:"4px 10px",borderRadius:5,cursor:"pointer",fontWeight:700,fontSize:11,opacity:acting===m.id?0.5:1 }}>Remover</button>}
                     </div>
                   ))}
                 </div>

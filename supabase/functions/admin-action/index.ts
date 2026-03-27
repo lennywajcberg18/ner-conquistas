@@ -108,6 +108,15 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ ok: true }), { headers: { ...cors, 'Content-Type': 'application/json' } })
   }
 
+  // ── REMOVE MEMBER ──
+  if (action === 'remove_member') {
+    const { memberId } = body
+    await db.from('requests').delete().eq('member_id', memberId)
+    await db.from('profiles').delete().eq('id', memberId)
+    await db.auth.admin.deleteUser(memberId)
+    return new Response(JSON.stringify({ ok: true }), { headers: { ...cors, 'Content-Type': 'application/json' } })
+  }
+
   // ── SET PASSWORD (admin sets own password) ──
   if (action === 'set_password') {
     const { password } = body
