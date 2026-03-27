@@ -77,11 +77,13 @@ const Login = ({ onBack }) => {
   };
 
   if (sent) return (
-    <div style={{ minHeight:"100vh",background:"#0B1623",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",padding:24 }}>
-      <div style={{ fontSize:48,marginBottom:16 }}>📧</div>
-      <div style={{ color:"#F0F4FA",fontSize:18,fontWeight:600,marginBottom:8 }}>Verifique seu email!</div>
-      <div style={{ color:"#6B7FA0",fontSize:13,maxWidth:300,lineHeight:1.6 }}>
-        Enviamos um link de acesso para <strong style={{color:"#E2C57A"}}>{email}</strong>.<br/>Clique no link para entrar.
+    <div style={{ minHeight:"100vh",background:"#0B1623",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",padding:24,fontFamily:"sans-serif" }}>
+      <div style={{ width:56,height:56,borderRadius:"50%",background:"#C9A84C18",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:20 }}>
+        <span style={{ fontSize:28 }}>✉</span>
+      </div>
+      <div style={{ color:"#F0F4FA",fontSize:20,fontWeight:700,marginBottom:10 }}>Verifique seu email!</div>
+      <div style={{ color:"#6B7FA0",fontSize:14,maxWidth:300,lineHeight:1.6 }}>
+        Enviamos um link de acesso para <strong style={{color:"#C9A84C"}}>{email}</strong>.<br/>Clique no link para entrar.
       </div>
     </div>
   );
@@ -124,9 +126,12 @@ const RequestInvite = ({ onBack, onDone }) => {
     setTimeout(onDone,2500);
   };
   if (sent) return (
-    <div style={{ minHeight:"100vh",background:"#0B1623",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",padding:24 }}>
-      <div style={{ fontSize:40,marginBottom:16 }}>Solicitacao enviada!</div>
-      <div style={{ color:"#6B7FA0",fontSize:13,maxWidth:280,lineHeight:1.5 }}>Aguarde contato no email <strong style={{color:"#E2C57A"}}>{email}</strong></div>
+    <div style={{ minHeight:"100vh",background:"#0B1623",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",padding:24,fontFamily:"sans-serif" }}>
+      <div style={{ width:56,height:56,borderRadius:"50%",background:"#C9A84C18",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:20 }}>
+        <span style={{ fontSize:28 }}>✓</span>
+      </div>
+      <div style={{ color:"#F0F4FA",fontSize:20,fontWeight:700,marginBottom:10 }}>Solicitacao enviada!</div>
+      <div style={{ color:"#6B7FA0",fontSize:14,maxWidth:300,lineHeight:1.6 }}>Aguarde a aprovacao do admin.<br/>Voce recebera um email em <strong style={{color:"#C9A84C"}}>{email}</strong></div>
     </div>
   );
   return (
@@ -134,7 +139,7 @@ const RequestInvite = ({ onBack, onDone }) => {
       <div style={{ width:"100%",maxWidth:340 }}>
         <div style={{ textAlign:"center",marginBottom:24 }}>
           <img src={LOGO_SRC} alt="" style={{ height:50,objectFit:"contain",display:"block",margin:"0 auto 10px" }} />
-          <div style={{ color:"#F0F4FA",fontSize:16,fontWeight:600 }}>Solicitar Convite</div>
+          <div style={{ color:"#F0F4FA",fontSize:16,fontWeight:700,fontFamily:"sans-serif" }}>Se Cadastrar</div>
         </div>
         <div style={{ background:"#111E2E",border:"1px solid #1C2E45",borderRadius:10,padding:"20px" }}>
           <Inp label="Nome" value={name} onChange={e=>setName(e.target.value)} placeholder="Nome completo" />
