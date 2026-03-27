@@ -469,8 +469,12 @@ const AdminPanel = ({ profile, onLogout }) => {
         else console.error("approve_invite error:", error);
       }
     } catch(e) { console.error("doAction error:", e); }
-    if (ok) { toast_(action.includes("approve")?"Aprovado!":"Rejeitado",action.includes("approve")); await load(); }
-    else toast_("Erro ao processar",false);
+    if (ok) {
+      toast_(action.includes("approve")?"Aprovado!":"Rejeitado",action.includes("approve"));
+      if (isInvite) setInvites(prev=>prev.map(i=>i.id===id?{...i,status:action.includes("approve")?"approved":"rejected"}:i));
+      else setReqs(prev=>prev.map(r=>r.id===id?{...r,status:action.includes("approve")?"approved":"rejected"}:r));
+      setTimeout(load, 1000);
+    } else toast_("Erro ao processar",false);
     setActing(null);
   };
   const pendReqs = reqs.filter(r=>r.status==="pending");
