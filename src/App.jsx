@@ -59,7 +59,7 @@ const Loader = () => (
   </div>
 );
 
-const Login = ({ onInvite }) => {
+const Login = ({ onBack }) => {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -101,8 +101,8 @@ const Login = ({ onInvite }) => {
           </button>
         </div>
         <div style={{ textAlign:"center",marginTop:16 }}>
-          <button onClick={onInvite} style={{ background:"transparent",color:"#9BAEC8",border:"1px solid #1C2E45",borderRadius:7,padding:"8px 20px",fontSize:13,cursor:"pointer" }}>
-            Solicitar Convite
+          <button onClick={onBack} style={{ background:"transparent",color:"#9BAEC8",border:"none",fontSize:13,cursor:"pointer",textDecoration:"underline" }}>
+            Voltar
           </button>
         </div>
       </div>
@@ -576,14 +576,17 @@ const AdminPanel = ({ profile, onLogout }) => {
   );
 };
 
-const Public = ({ onLogin }) => (
+const Public = ({ onLogin, onRegister }) => (
   <div style={{ minHeight:"100vh",background:"#0B1623",color:"#F0F4FA",fontFamily:"Georgia,serif" }}>
     <div style={{ padding:"70px 24px 50px",textAlign:"center" }}>
       <img src={LOGO_SRC} alt="" style={{ height:72,objectFit:"contain",display:"block",margin:"0 auto 16px" }} />
       <div style={{ color:"#C9A84C",fontFamily:"sans-serif",fontSize:10,letterSpacing:4,textTransform:"uppercase",marginBottom:12 }}>Sinagoga Ner Israel - Perdizes</div>
       <h1 style={{ fontSize:"clamp(32px,7vw,58px)",fontWeight:400,margin:"0 0 14px",lineHeight:1.1 }}>Programa de <span style={{ color:"#C9A84C",fontStyle:"italic" }}>Conquistas</span></h1>
       <p style={{ color:"#6B7FA0",fontSize:14,maxWidth:460,margin:"0 auto 32px",lineHeight:1.7,fontFamily:"sans-serif" }}>Participe das atividades do Ner Israel, acumule pontos e troque por premios incriveis.</p>
-      <button onClick={onLogin} style={{ background:"linear-gradient(135deg,#C9A84C,#E2C57A)",color:"#0B1623",border:"none",padding:"12px 30px",borderRadius:4,fontWeight:800,fontSize:14,cursor:"pointer",fontFamily:"sans-serif" }}>Entrar</button>
+      <div style={{ display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap" }}>
+        <button onClick={onLogin} style={{ background:"linear-gradient(135deg,#C9A84C,#E2C57A)",color:"#0B1623",border:"none",padding:"12px 30px",borderRadius:4,fontWeight:800,fontSize:14,cursor:"pointer",fontFamily:"sans-serif" }}>Fazer Login</button>
+        <button onClick={onRegister} style={{ background:"transparent",color:"#C9A84C",border:"1px solid #C9A84C",padding:"12px 30px",borderRadius:4,fontWeight:800,fontSize:14,cursor:"pointer",fontFamily:"sans-serif" }}>Se Cadastrar</button>
+      </div>
     </div>
     <div style={{ maxWidth:820,margin:"0 auto",padding:"0 20px 60px" }}>
       <div style={{ textAlign:"center",marginBottom:24 }}>
@@ -627,9 +630,9 @@ export default function App() {
   },[loadProfile]);
   const logout = async () => { await supabase.auth.signOut(); };
   if(view==="loading") return <Loader />;
-  if(view==="public")  return <Public onLogin={()=>setView("login")} />;
-  if(view==="login")   return <Login onInvite={()=>setView("invite")} />;
-  if(view==="invite")  return <RequestInvite onBack={()=>setView("login")} onDone={()=>setView("login")} />;
+  if(view==="public")  return <Public onLogin={()=>setView("login")} onRegister={()=>setView("invite")} />;
+  if(view==="login")   return <Login onBack={()=>setView("public")} />;
+  if(view==="invite")  return <RequestInvite onBack={()=>setView("public")} onDone={()=>setView("public")} />;
   if(view==="member")  return <MemberDash profile={profile} onLogout={logout} />;
   if(view==="admin")   return <AdminPanel profile={profile} onLogout={logout} />;
 }
