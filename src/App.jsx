@@ -106,8 +106,9 @@ const RequestInvite = ({ onBack, onDone }) => {
   const [sent,setSent] = useState(false);
   const [loading,setLoading] = useState(false);
   const [err,setErr] = useState("");
+  const nameValid = name.trim().split(/\s+/).length >= 2;
   const go = async () => {
-    if (!name||!email) return;
+    if (!nameValid||!email) return;
     setLoading(true); setErr("");
     const { error } = await supabase.from("invite_requests").insert({ name:capitalize(name),email:email.trim().toLowerCase(),msg,status:"pending",date:new Date().toLocaleDateString("pt-BR") });
     if (error) { setErr("Erro ao enviar: " + error.message); setLoading(false); return; }
@@ -131,14 +132,15 @@ const RequestInvite = ({ onBack, onDone }) => {
           <div style={{ color:"#F0F4FA",fontSize:16,fontWeight:700 }}>Se Cadastrar</div>
         </div>
         <div style={{ background:"#111E2E",border:"1px solid #1C2E45",borderRadius:10,padding:"20px" }}>
-          <Inp label="Nome" value={name} onChange={e=>setName(e.target.value)} placeholder="Nome completo" />
+          <Inp label="Nome completo" value={name} onChange={e=>setName(e.target.value)} placeholder="Nome e sobrenome" />
+          {name && !nameValid && <div style={{ color:"#FF8080",fontSize:11,marginBottom:8,marginTop:-10 }}>Digite nome e sobrenome</div>}
           <Inp label="Email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="seu@email.com" type="email" />
           <div style={{ marginBottom:14 }}>
             <div style={{ fontSize:10,color:"#6B7FA0",letterSpacing:1.2,textTransform:"uppercase",marginBottom:5 }}>Mensagem</div>
             <textarea value={msg} onChange={e=>setMsg(e.target.value)} placeholder="Por que deseja participar?" style={{ width:"100%",boxSizing:"border-box",background:"#0B1623",border:"1px solid #1C2E45",color:"#F0F4FA",padding:"9px 12px",borderRadius:6,fontSize:13,resize:"none",height:70 }} />
           </div>
           {err && <div style={{ color:"#FF8080",fontSize:12,marginBottom:12 }}>{err}</div>}
-          <button onClick={go} disabled={!name||!email||loading} style={{ width:"100%",background:name&&email?"linear-gradient(135deg,#C9A84C,#E2C57A)":"#1C2E45",color:"#0B1623",border:"none",padding:"11px",borderRadius:7,fontWeight:800,fontSize:14,cursor:name&&email?"pointer":"default",opacity:name&&email?1:0.5 }}>
+          <button onClick={go} disabled={!nameValid||!email||loading} style={{ width:"100%",background:nameValid&&email?"linear-gradient(135deg,#C9A84C,#E2C57A)":"#1C2E45",color:"#0B1623",border:"none",padding:"11px",borderRadius:8,fontWeight:800,fontSize:14,cursor:nameValid&&email?"pointer":"default",opacity:nameValid&&email?1:0.5 }}>
             {loading?"Enviando...":"Enviar"}
           </button>
         </div>
@@ -649,6 +651,25 @@ const Public = ({ onLogin, onRegister }) => (
                 <span style={{ background:"#C9A84C18",color:"#C9A84C",padding:"2px 8px",borderRadius:20,fontSize:11,fontWeight:700 }}>+{i.p}</span>
               </div>
             ))}
+          </div>
+        ))}
+      </div>
+      <div style={{ textAlign:"center",margin:"48px 0 24px" }}>
+        <div style={{ color:"#C9A84C",fontSize:10,letterSpacing:3,textTransform:"uppercase",marginBottom:6 }}>Recompensas</div>
+        <h2 style={{ fontSize:26,fontWeight:600,margin:0 }}>Premios</h2>
+      </div>
+      <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(240px,1fr))",gap:12 }}>
+        {PRIZES.map(p=>(
+          <div key={p.pts} style={{ background:"#111E2E",border:"1px solid "+p.color+"33",borderRadius:10,padding:18 }}>
+            <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12 }}>
+              <span style={{ fontSize:16,fontWeight:800,color:p.color }}>{p.label}</span>
+              <span style={{ fontSize:11,color:"#6B7FA0" }}>{p.range}</span>
+            </div>
+            <div style={{ display:"flex",flexWrap:"wrap",gap:6 }}>
+              {p.items.map(it=>(
+                <span key={it} style={{ background:"#0B1623",border:"1px solid #1C2E45",color:"#9BAEC8",padding:"3px 10px",borderRadius:20,fontSize:11 }}>{it}</span>
+              ))}
+            </div>
           </div>
         ))}
       </div>
