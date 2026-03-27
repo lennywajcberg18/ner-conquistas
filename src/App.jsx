@@ -72,7 +72,7 @@ const Login = ({ onBack }) => {
       email: email.trim().toLowerCase(),
       options: { emailRedirectTo: window.location.origin }
     });
-    if (error) { setErr("Erro ao enviar email. Tente novamente."); setLoading(false); }
+    if (error) { setErr("Email nao cadastrado. Cadastre-se primeiro."); setLoading(false); }
     else setSent(true);
   };
 
@@ -97,7 +97,7 @@ const Login = ({ onBack }) => {
           <Inp label="Email" value={email} onChange={e=>{setEmail(e.target.value);setErr("")}} onKeyDown={e=>e.key==="Enter"&&go()} placeholder="seu@email.com" type="email" />
           {err && <div style={{ color:"#FF8080",fontSize:12,marginBottom:12,marginTop:-8 }}>{err}</div>}
           <button onClick={go} disabled={!email||loading} style={{ width:"100%",background:email?"linear-gradient(135deg,#C9A84C,#E2C57A)":"#1C2E45",color:"#0B1623",border:"none",padding:"11px",borderRadius:7,fontWeight:800,fontSize:14,cursor:email?"pointer":"default" }}>
-            {loading?"Enviando...":"Enviar link de acesso →"}
+            {loading?"Enviando...":"Entrar"}
           </button>
         </div>
         <div style={{ textAlign:"center",marginTop:16 }}>
@@ -120,7 +120,6 @@ const RequestInvite = ({ onBack, onDone }) => {
     if (!name||!email) return;
     setLoading(true);
     await supabase.from("invite_requests").insert({ name,email,msg,status:"pending",date:new Date().toLocaleDateString("pt-BR") });
-    await supabase.functions.invoke("notify-admin",{ body:{ type:"invite",name,email,msg } });
     setSent(true); setLoading(false);
     setTimeout(onDone,2500);
   };
