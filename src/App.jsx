@@ -103,10 +103,10 @@ const Login = ({ onBack }) => {
         </div>
         <div style={{ background:"#111E2E",border:"1px solid #1C2E45",borderRadius:10,padding:"22px 20px" }}>
           <Inp label="Email" value={email} onChange={e=>{setEmail(e.target.value);setErr("")}} onKeyDown={e=>e.key==="Enter"&&go()} placeholder="seu@email.com" type="email" />
-          <Inp label="Senha (opcional)" value={pass} onChange={e=>{setPass(e.target.value);setErr("")}} onKeyDown={e=>e.key==="Enter"&&go()} placeholder="Deixe vazio para receber link por email" type="password" />
+          <Inp label="Senha" value={pass} onChange={e=>{setPass(e.target.value);setErr("")}} onKeyDown={e=>e.key==="Enter"&&go()} placeholder="Sua senha" type="password" />
           {err && <div style={{ color:"#FF8080",fontSize:12,marginBottom:12,marginTop:-8 }}>{err}</div>}
-          <button onClick={go} disabled={!email||loading} style={{ width:"100%",background:email?"linear-gradient(135deg,#C9A84C,#E2C57A)":"#1C2E45",color:"#0B1623",border:"none",padding:"11px",borderRadius:7,fontWeight:800,fontSize:14,cursor:email?"pointer":"default" }}>
-            {loading?"Enviando...":(pass?"Entrar":"Enviar link de acesso")}
+          <button onClick={go} disabled={!email||!pass||loading} style={{ width:"100%",background:email&&pass?"linear-gradient(135deg,#C9A84C,#E2C57A)":"#1C2E45",color:"#0B1623",border:"none",padding:"11px",borderRadius:7,fontWeight:800,fontSize:14,cursor:email&&pass?"pointer":"default" }}>
+            {loading?"Entrando...":"Entrar"}
           </button>
         </div>
         <div style={{ textAlign:"center",marginTop:16 }}>
