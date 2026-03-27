@@ -317,7 +317,7 @@ const MemberDash = ({ profile, onLogout }) => {
                 { label:"Ranking",val:"#"+rank,sub:"de "+members.length+" membros",valC:"#F0F4FA" },
                 { label:"Proximo",val:next?next.label:"Top!",sub:next?"faltam "+(next.pts-me.pts)+" pts":"Nivel maximo",valC:"#F0F4FA" },
               ].map(s=>(
-                <div key={s.label} style={{ background:"#111E2E",border:"1px solid #1C2E45",borderRadius:10,padding:16 }}>
+                <div key={s.label} data-card style={{ background:"#111E2E",border:"1px solid #1C2E45",borderRadius:10,padding:16 }}>
                   <div style={{ fontSize:10,color:"#6B7FA0",letterSpacing:1,textTransform:"uppercase",marginBottom:6 }}>{s.label}</div>
                   <div style={{ fontSize:28,fontWeight:900,color:s.valC,lineHeight:1,marginBottom:4 }}>{s.val}</div>
                   <div style={{ fontSize:11,color:"#6B7FA0" }}>{s.sub}</div>
@@ -384,7 +384,7 @@ const MemberDash = ({ profile, onLogout }) => {
               const ok = me.pts>=prize.pts;
               const pend = myReqs.find(r=>r.type==="redeem"&&r.activity.startsWith(prize.label)&&r.status==="pending");
               return (
-                <div key={prize.pts} style={{ background:"#111E2E",border:"1px solid "+(ok?prize.color+"55":"#1C2E45"),borderRadius:10,padding:"16px 18px",marginBottom:12,opacity:ok?1:0.55 }}>
+                <div key={prize.pts} data-card style={{ background:"#111E2E",border:"1px solid "+(ok?prize.color+"55":"#1C2E45"),borderRadius:10,padding:"16px 18px",marginBottom:12,opacity:ok?1:0.55 }}>
                   <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10 }}>
                     <div>
                       <span style={{ fontSize:18,fontWeight:800,color:prize.color }}>{prize.label}</span>
@@ -643,7 +643,7 @@ const Public = ({ onLogin, onRegister }) => (
           { title:"Outros",       icon:"Outros",       items:[{l:"Palestras/Shiurim",p:2},{l:"Eventos Chaguim",p:2}] },
           { title:"Bonus",        icon:"Bonus",        items:[{l:"Trazer amigo",p:3},{l:"3 rezas seguidas",p:5},{l:"Shabbat completo",p:10},{l:"Rezas Chaguim",p:5},{l:"Feriados/Ferias",p:"2x"}] },
         ].map(c=>(
-          <div key={c.title} style={{ background:"#111E2E",border:"1px solid #1C2E45",borderRadius:10,padding:18 }}>
+          <div key={c.title} data-card style={{ background:"#111E2E",border:"1px solid #1C2E45",borderRadius:10,padding:18 }}>
             <div style={{ fontSize:10,fontWeight:700,letterSpacing:1,textTransform:"uppercase",color:"#C9A84C",marginBottom:12 }}>{c.title}</div>
             {c.items.map(i=>(
               <div key={i.l} style={{ display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8 }}>
@@ -660,7 +660,7 @@ const Public = ({ onLogin, onRegister }) => (
       </div>
       <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(240px,1fr))",gap:12 }}>
         {PRIZES.map(p=>(
-          <div key={p.pts} style={{ background:"#111E2E",border:"1px solid "+p.color+"33",borderRadius:10,padding:18 }}>
+          <div key={p.pts} data-card style={{ background:"#111E2E",border:"1px solid "+p.color+"33",borderRadius:10,padding:18 }}>
             <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12 }}>
               <span style={{ fontSize:16,fontWeight:800,color:p.color }}>{p.label}</span>
               <span style={{ fontSize:11,color:"#6B7FA0" }}>{p.range}</span>
