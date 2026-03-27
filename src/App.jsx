@@ -61,6 +61,7 @@ const Loader = () => (
 
 const Login = ({ onBack }) => {
   const [email, setEmail] = useState("");
+  const [pass, setPass] = useState("");
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
@@ -68,12 +69,17 @@ const Login = ({ onBack }) => {
   const go = async () => {
     if (!email) return;
     setLoading(true); setErr("");
-    const { error } = await supabase.auth.signInWithOtp({
-      email: email.trim().toLowerCase(),
-      options: { emailRedirectTo: window.location.origin }
-    });
-    if (error) { setErr("Email nao cadastrado. Cadastre-se primeiro."); setLoading(false); }
-    else setSent(true);
+    if (pass) {
+      const { error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password: pass });
+      if (error) { setErr("Email ou senha incorretos."); setLoading(false); }
+    } else {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: email.trim().toLowerCase(),
+        options: { emailRedirectTo: window.location.origin }
+      });
+      if (error) { setErr("Email nao cadastrado. Cadastre-se primeiro."); setLoading(false); }
+      else setSent(true);
+    }
   };
 
   if (sent) return (
@@ -97,9 +103,10 @@ const Login = ({ onBack }) => {
         </div>
         <div style={{ background:"#111E2E",border:"1px solid #1C2E45",borderRadius:10,padding:"22px 20px" }}>
           <Inp label="Email" value={email} onChange={e=>{setEmail(e.target.value);setErr("")}} onKeyDown={e=>e.key==="Enter"&&go()} placeholder="seu@email.com" type="email" />
+          <Inp label="Senha (opcional)" value={pass} onChange={e=>{setPass(e.target.value);setErr("")}} onKeyDown={e=>e.key==="Enter"&&go()} placeholder="Deixe vazio para receber link por email" type="password" />
           {err && <div style={{ color:"#FF8080",fontSize:12,marginBottom:12,marginTop:-8 }}>{err}</div>}
           <button onClick={go} disabled={!email||loading} style={{ width:"100%",background:email?"linear-gradient(135deg,#C9A84C,#E2C57A)":"#1C2E45",color:"#0B1623",border:"none",padding:"11px",borderRadius:7,fontWeight:800,fontSize:14,cursor:email?"pointer":"default" }}>
-            {loading?"Enviando...":"Entrar"}
+            {loading?"Enviando...":(pass?"Entrar":"Enviar link de acesso")}
           </button>
         </div>
         <div style={{ textAlign:"center",marginTop:16 }}>
