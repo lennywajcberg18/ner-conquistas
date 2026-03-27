@@ -85,13 +85,14 @@ Deno.serve(async (req) => {
   // ── APPROVE INVITE (creates user with password and sends email) ──
   if (action === 'approve_invite') {
     const { data: inv } = await db.from('invite_requests').select('*').eq('id', inviteId).single()
-    const tempPassword = inv.name.trim().split(' ')[0].toLowerCase() + '2026'
+    const name = inv.name.trim().split(/\s+/).map((w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
+    const tempPassword = name.split(' ')[0].toLowerCase() + '2026'
     const { data: authData, error: authError } = await db.auth.admin.createUser({
       email: inv.email, password: tempPassword, email_confirm: true
     })
     if (!authError && authData.user) {
-      const ini = inv.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
-      await db.from('profiles').insert({ id: authData.user.id, name: inv.name, email: inv.email, ini, pts: 0, is_admin: false })
+      const ini = name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+      await db.from('profiles').insert({ id: authData.user.id, name, email: inv.email, ini, pts: 0, is_admin: false })
       await db.from('invite_requests').update({ status: 'approved' }).eq('id', inviteId)
       await sendEmail(inv.email, 'Parabens! Voce foi aprovado no Programa de Conquistas — Ner Israel',
         `<div style="font-family:sans-serif;max-width:500px;margin:0 auto;background:#0B1623;color:#F0F4FA;padding:40px 30px;border-radius:12px;">
@@ -99,7 +100,7 @@ Deno.serve(async (req) => {
             <div style="color:#C9A84C;font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;">Sinagoga Ner Israel</div>
             <h1 style="font-size:22px;font-weight:700;margin:0 0 6px;color:#F0F4FA;">Programa de Conquistas</h1>
           </div>
-          <p style="font-size:16px;line-height:1.6;">Ola <strong>${inv.name}</strong>!</p>
+          <p style="font-size:16px;line-height:1.6;">Ola <strong>${name}</strong>!</p>
           <p style="font-size:15px;line-height:1.6;">Parabens! Sua solicitacao foi aprovada. Voce agora faz parte do <strong style="color:#C9A84C;">Programa de Conquistas</strong> do Ner Israel.</p>
           <p style="font-size:15px;line-height:1.6;">Participe das atividades, acumule pontos e troque por premios incriveis!</p>
           <div style="background:#111E2E;border:1px solid #1C2E45;border-radius:10px;padding:20px;margin:24px 0;">
@@ -113,7 +114,7 @@ Deno.serve(async (req) => {
           <p style="font-size:11px;color:#6B7FA0;text-align:center;margin-top:24px;">Recomendamos que voce troque sua senha apos o primeiro acesso.</p>
         </div>`)
     }
-    return new Response(JSON.stringify({ ok: true, password: tempPassword, name: inv.name }), { headers: { ...cors, 'Content-Type': 'application/json' } })
+    return new Response(JSON.stringify({ ok: true, password: tempPassword, name }), { headers: { ...cors, 'Content-Type': 'application/json' } })
   }
 
   // ── REJECT INVITE ──
