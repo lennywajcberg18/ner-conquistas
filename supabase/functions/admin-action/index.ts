@@ -112,5 +112,13 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ ok: true }), { headers: { ...cors, 'Content-Type': 'application/json' } })
   }
 
+  // ── SET PASSWORD (admin sets own password) ──
+  if (action === 'set_password') {
+    const { password } = body
+    const { error } = await db.auth.admin.updateUserById(user.id, { password })
+    if (error) return new Response(JSON.stringify({ error: error.message }), { status: 400, headers: { ...cors, 'Content-Type': 'application/json' } })
+    return new Response(JSON.stringify({ ok: true }), { headers: { ...cors, 'Content-Type': 'application/json' } })
+  }
+
   return new Response('Unknown action', { status: 400, headers: cors })
 })
