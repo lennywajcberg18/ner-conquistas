@@ -636,7 +636,7 @@ const Public = ({ onLogin, onRegister }) => (
         <div style={{ color:"#C9A84C",fontSize:10,letterSpacing:3,textTransform:"uppercase",marginBottom:6 }}>Como funciona</div>
         <h2 style={{ fontSize:26,fontWeight:400,margin:0 }}>Tabela de Pontos</h2>
       </div>
-      <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(190px,1fr))",gap:12 }}>
+      <div style={{ display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:12,maxWidth:600,margin:"0 auto" }}>
         {[
           { title:"Shacharit",    icon:"Shacharit",    items:[{l:"Semana (Dom-Sex)",p:3},{l:"Shabbat",p:5}] },
           { title:"Mincha/Arvit", icon:"Mincha",       items:[{l:"Dom-Qui",p:3},{l:"Shabbat",p:4}] },
