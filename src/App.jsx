@@ -426,14 +426,12 @@ const AdminPanel = ({ profile, onLogout }) => {
   };
   const load = useCallback(async () => {
     setLoading(true);
-    try {
-      const { data, error } = await invokeAdmin({ action:"get_all" });
-      console.log("admin-action response:", { data, error });
-      if (error) { console.error("Edge function error:", error); }
-      else if (typeof data === "string") {
-        try { const parsed = JSON.parse(data); setReqs(parsed.requests||[]); setInvites(parsed.invites||[]); setMembers(parsed.members||[]); } catch(e) { console.error("Parse error:", e); }
-      } else if (data) { setReqs(data.requests||[]); setInvites(data.invites||[]); setMembers(data.members||[]); }
-    } catch(e) { console.error("Invoke error:", e); }
+    const [rRes, iRes, mRes] = await Promise.all([
+      supabase.from("requests").select("*").order("created_at",{ascending:false}),
+      supabase.from("invite_requests").select("*").order("created_at",{ascending:false}),
+      supabase.from("profiles").select("*").order("pts",{ascending:false}),
+    ]);
+    setReqs(rRes.data||[]); setInvites(iRes.data||[]); setMembers(mRes.data||[]);
     setLoading(false);
   },[]);
   useEffect(()=>{ load(); },[load]);
