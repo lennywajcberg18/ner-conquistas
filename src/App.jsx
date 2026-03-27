@@ -437,9 +437,31 @@ const AdminPanel = ({ profile, onLogout }) => {
   useEffect(()=>{ load(); },[load]);
   const doAction = async (action,id,isInvite=false) => {
     setActing(id);
-    const body = isInvite?{ action,inviteId:id }:{ action,requestId:id };
-    const { error } = await invokeAdmin(body);
-    if (!error) { toast_(action.includes("approve")?"Aprovado!":"Rejeitado",action.includes("approve")); await load(); }
+    let ok = false;
+    try {
+      if (action === "reject_invite") {
+        await supabase.from("invite_requests").update({ status:"rejected" }).eq("id",id);
+        ok = true;
+      } else if (action === "reject_request") {
+        await supabase.from("requests").update({ status:"rejected" }).eq("id",id);
+        ok = true;
+      } else if (action === "approve_request") {
+        const { data: r } = await supabase.from("requests").select("*").eq("id",id).single();
+        await supabase.from("requests").update({ status:"approved" }).eq("id",id);
+        const { data: p } = await supabase.from("profiles").select("pts").eq("id",r.member_id).single();
+        if (r.type === "points") {
+          await supabase.from("profiles").update({ pts: p.pts + r.pts }).eq("id",r.member_id);
+        } else {
+          await supabase.from("profiles").update({ pts: Math.max(0, p.pts - r.pts) }).eq("id",r.member_id);
+        }
+        ok = true;
+      } else if (action === "approve_invite") {
+        const { error } = await invokeAdmin({ action, inviteId: id });
+        if (!error) ok = true;
+        else console.error("approve_invite error:", error);
+      }
+    } catch(e) { console.error("doAction error:", e); }
+    if (ok) { toast_(action.includes("approve")?"Aprovado!":"Rejeitado",action.includes("approve")); await load(); }
     else toast_("Erro ao processar",false);
     setActing(null);
   };
