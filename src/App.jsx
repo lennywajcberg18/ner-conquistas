@@ -445,7 +445,7 @@ const AdminPanel = ({ profile, onLogout }) => {
   useEffect(()=>{ load(); },[load]);
   const doAction = async (action,id,isInvite=false) => {
     setActing(id);
-    let ok = false;
+    let ok = false, approveMsg = null;
     try {
       if (action === "reject_invite") {
         await supabase.from("invite_requests").update({ status:"rejected" }).eq("id",id);
@@ -464,13 +464,13 @@ const AdminPanel = ({ profile, onLogout }) => {
         }
         ok = true;
       } else if (action === "approve_invite") {
-        const { error } = await invokeAdmin({ action, inviteId: id });
-        if (!error) ok = true;
+        const { data, error } = await invokeAdmin({ action, inviteId: id });
+        if (!error) { ok = true; if (data?.password) approveMsg = "Aprovado! Senha: " + data.password; }
         else console.error("approve_invite error:", error);
       }
     } catch(e) { console.error("doAction error:", e); }
     if (ok) {
-      toast_(action.includes("approve")?"Aprovado!":"Rejeitado",action.includes("approve"));
+      toast_(approveMsg || (action.includes("approve")?"Aprovado!":"Rejeitado"),action.includes("approve"));
       if (isInvite) setInvites(prev=>prev.map(i=>i.id===id?{...i,status:action.includes("approve")?"approved":"rejected"}:i));
       else setReqs(prev=>prev.map(r=>r.id===id?{...r,status:action.includes("approve")?"approved":"rejected"}:r));
       setTimeout(load, 1000);

@@ -96,7 +96,7 @@ Deno.serve(async (req) => {
       await sendEmail(inv.email, '🎉 Bem-vindo ao Programa de Conquistas — Ner Israel!',
         `<p>Olá ${inv.name}!</p><p>Seu acesso foi aprovado!</p><p><strong>Email:</strong> ${inv.email}<br><strong>Senha:</strong> ${tempPassword}</p><p>Acesse: <a href="${APP_URL}" style="background:#C9A84C;color:#0B1623;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:bold;display:inline-block;">Entrar no sistema →</a></p>`)
     }
-    return new Response(JSON.stringify({ ok: true }), { headers: { ...cors, 'Content-Type': 'application/json' } })
+    return new Response(JSON.stringify({ ok: true, password: tempPassword, name: inv.name }), { headers: { ...cors, 'Content-Type': 'application/json' } })
   }
 
   // ── REJECT INVITE ──
