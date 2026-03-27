@@ -118,10 +118,12 @@ const RequestInvite = ({ onBack, onDone }) => {
   const [msg,setMsg] = useState("");
   const [sent,setSent] = useState(false);
   const [loading,setLoading] = useState(false);
+  const [err,setErr] = useState("");
   const go = async () => {
     if (!name||!email) return;
-    setLoading(true);
-    await supabase.from("invite_requests").insert({ name,email,msg,status:"pending",date:new Date().toLocaleDateString("pt-BR") });
+    setLoading(true); setErr("");
+    const { error } = await supabase.from("invite_requests").insert({ name,email,msg,status:"pending",date:new Date().toLocaleDateString("pt-BR") });
+    if (error) { setErr("Erro ao enviar: " + error.message); setLoading(false); return; }
     setSent(true); setLoading(false);
     setTimeout(onDone,2500);
   };
@@ -148,6 +150,7 @@ const RequestInvite = ({ onBack, onDone }) => {
             <div style={{ fontSize:10,color:"#6B7FA0",letterSpacing:1.2,textTransform:"uppercase",marginBottom:5 }}>Mensagem</div>
             <textarea value={msg} onChange={e=>setMsg(e.target.value)} placeholder="Por que deseja participar?" style={{ width:"100%",boxSizing:"border-box",background:"#0B1623",border:"1px solid #1C2E45",color:"#F0F4FA",padding:"9px 12px",borderRadius:6,fontSize:13,resize:"none",height:70,fontFamily:"sans-serif" }} />
           </div>
+          {err && <div style={{ color:"#FF8080",fontSize:12,marginBottom:12 }}>{err}</div>}
           <button onClick={go} disabled={!name||!email||loading} style={{ width:"100%",background:name&&email?"linear-gradient(135deg,#C9A84C,#E2C57A)":"#1C2E45",color:"#0B1623",border:"none",padding:"11px",borderRadius:7,fontWeight:800,fontSize:14,cursor:name&&email?"pointer":"default",opacity:name&&email?1:0.5 }}>
             {loading?"Enviando...":"Enviar"}
           </button>
