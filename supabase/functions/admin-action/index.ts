@@ -82,23 +82,19 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ ok: true }), { headers: { ...cors, 'Content-Type': 'application/json' } })
   }
 
-  // ── APPROVE INVITE (creates user and sends magic link) ──
+  // ── APPROVE INVITE (creates user with password and sends email) ──
   if (action === 'approve_invite') {
     const { data: inv } = await db.from('invite_requests').select('*').eq('id', inviteId).single()
+    const tempPassword = inv.name.trim().split(' ')[0].toLowerCase() + '2026'
     const { data: authData, error: authError } = await db.auth.admin.createUser({
-      email: inv.email, email_confirm: true
+      email: inv.email, password: tempPassword, email_confirm: true
     })
     if (!authError && authData.user) {
       const ini = inv.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
       await db.from('profiles').insert({ id: authData.user.id, name: inv.name, email: inv.email, ini, pts: 0, is_admin: false })
       await db.from('invite_requests').update({ status: 'approved' }).eq('id', inviteId)
-      const { data: linkData } = await db.auth.admin.generateLink({
-        type: 'magiclink', email: inv.email,
-        options: { redirectTo: APP_URL }
-      })
-      const magicLink = (linkData as any)?.properties?.action_link || APP_URL
       await sendEmail(inv.email, '🎉 Bem-vindo ao Programa de Conquistas — Ner Israel!',
-        `<p>Olá ${inv.name}!</p><p>Seu acesso foi aprovado! Clique no botão abaixo para entrar:</p><p><a href="${magicLink}" style="background:#C9A84C;color:#0B1623;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:bold;display:inline-block;">Acessar o sistema →</a></p><p style="color:#888;font-size:12px;">O link expira em 24 horas.</p>`)
+        `<p>Olá ${inv.name}!</p><p>Seu acesso foi aprovado!</p><p><strong>Email:</strong> ${inv.email}<br><strong>Senha:</strong> ${tempPassword}</p><p>Acesse: <a href="${APP_URL}" style="background:#C9A84C;color:#0B1623;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:bold;display:inline-block;">Entrar no sistema →</a></p>`)
     }
     return new Response(JSON.stringify({ ok: true }), { headers: { ...cors, 'Content-Type': 'application/json' } })
   }

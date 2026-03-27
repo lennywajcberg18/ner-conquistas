@@ -62,37 +62,15 @@ const Loader = () => (
 const Login = ({ onBack }) => {
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
-  const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
 
   const go = async () => {
-    if (!email) return;
+    if (!email||!pass) return;
     setLoading(true); setErr("");
-    if (pass) {
-      const { error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password: pass });
-      if (error) { setErr("Email ou senha incorretos."); setLoading(false); }
-    } else {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: email.trim().toLowerCase(),
-        options: { emailRedirectTo: window.location.origin }
-      });
-      if (error) { setErr("Email nao cadastrado. Cadastre-se primeiro."); setLoading(false); }
-      else setSent(true);
-    }
+    const { error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password: pass });
+    if (error) { setErr("Email ou senha incorretos."); setLoading(false); }
   };
-
-  if (sent) return (
-    <div style={{ minHeight:"100vh",background:"#0B1623",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",padding:24,fontFamily:"sans-serif" }}>
-      <div style={{ width:56,height:56,borderRadius:"50%",background:"#C9A84C18",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:20 }}>
-        <span style={{ fontSize:28 }}>✉</span>
-      </div>
-      <div style={{ color:"#F0F4FA",fontSize:20,fontWeight:700,marginBottom:10 }}>Verifique seu email!</div>
-      <div style={{ color:"#6B7FA0",fontSize:14,maxWidth:300,lineHeight:1.6 }}>
-        Enviamos um link de acesso para <strong style={{color:"#C9A84C"}}>{email}</strong>.<br/>Clique no link para entrar.
-      </div>
-    </div>
-  );
 
   return (
     <div style={{ minHeight:"100vh",background:"#0B1623",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:24 }}>
@@ -438,10 +416,18 @@ const AdminPanel = ({ profile, onLogout }) => {
   const [toast,setToast] = useState(null);
   const [acting,setActing] = useState(null);
   const toast_ = (msg,ok=true) => { setToast({msg,ok}); setTimeout(()=>setToast(null),3000); };
+  const invokeAdmin = async (body) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return { data: null, error: "No session" };
+    return supabase.functions.invoke("admin-action", {
+      body,
+      headers: { Authorization: `Bearer ${session.access_token}` }
+    });
+  };
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("admin-action",{ body:{ action:"get_all" } });
+      const { data, error } = await invokeAdmin({ action:"get_all" });
       console.log("admin-action response:", { data, error });
       if (error) { console.error("Edge function error:", error); }
       else if (typeof data === "string") {
@@ -454,7 +440,7 @@ const AdminPanel = ({ profile, onLogout }) => {
   const doAction = async (action,id,isInvite=false) => {
     setActing(id);
     const body = isInvite?{ action,inviteId:id }:{ action,requestId:id };
-    const { error } = await supabase.functions.invoke("admin-action",{ body });
+    const { error } = await invokeAdmin(body);
     if (!error) { toast_(action.includes("approve")?"Aprovado!":"Rejeitado",action.includes("approve")); await load(); }
     else toast_("Erro ao processar",false);
     setActing(null);
