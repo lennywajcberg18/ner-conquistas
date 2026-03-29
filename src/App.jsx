@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+const useIsMobile = () => { const [m,setM] = useState(window.innerWidth<600); useEffect(()=>{ const h=()=>setM(window.innerWidth<600); window.addEventListener("resize",h); return()=>window.removeEventListener("resize",h); },[]); return m; };
 import { supabase } from "./supabaseClient";
 
 const capitalize = (str) => str.trim().split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
@@ -47,7 +48,7 @@ const StatusPill = ({ status }) => {
 };
 
 const Toast = ({ msg, ok }) => (
-  <div style={{ position:"fixed",top:20,left:"50%",transform:"translateX(-50%)",background:ok?"#27674A":"#8B3535",color:"#fff",padding:"10px 20px",borderRadius:8,fontWeight:600,fontSize:13,zIndex:9999,maxWidth:440,textAlign:"center",boxShadow:"0 4px 20px #0009" }}>{msg}</div>
+  <div style={{ position:"fixed",top:20,left:"50%",transform:"translateX(-50%)",background:ok?"#27674A":"#8B3535",color:"#fff",padding:"10px 20px",borderRadius:8,fontWeight:600,fontSize:13,zIndex:9999,maxWidth:"min(90vw,440px)",width:"max-content",textAlign:"center",boxShadow:"0 4px 20px #0009" }}>{msg}</div>
 );
 
 const Inp = ({ label, ...p }) => (
@@ -153,6 +154,7 @@ const RequestInvite = ({ onBack, onDone }) => {
 };
 
 const PointsModal = ({ profile, onClose, onSubmit }) => {
+  const isMobile = useIsMobile();
   const [sel,setSel] = useState([]);
   const [date,setDate] = useState(new Date().toISOString().split("T")[0]);
   const [hol,setHol] = useState(false);
@@ -182,12 +184,12 @@ const PointsModal = ({ profile, onClose, onSubmit }) => {
           <span style={{ fontSize:16,fontWeight:700,color:"#F0F4FA" }}>Solicitar Pontos</span>
           <button onClick={onClose} style={{ background:"transparent",border:"none",color:"#6B7FA0",fontSize:20,cursor:"pointer" }}>x</button>
         </div>
-        <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:16 }}>
+        <div style={{ display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:10,marginBottom:16 }}>
           <div>
             <div style={{ fontSize:10,color:"#6B7FA0",letterSpacing:1,textTransform:"uppercase",marginBottom:5 }}>Data</div>
             <input type="date" value={date} onChange={e=>setDate(e.target.value)} style={{ width:"100%",boxSizing:"border-box",background:"#0B1623",border:"1px solid #1C2E45",color:"#F0F4FA",padding:"8px 10px",borderRadius:6,fontSize:12 }} />
           </div>
-          <div onClick={()=>setHol(h=>!h)} style={{ background:hol?"#C9A84C18":"#0B1623",border:"1px solid "+(hol?"#C9A84C66":"#1C2E45"),borderRadius:6,padding:"8px 12px",cursor:"pointer",display:"flex",alignItems:"center",gap:8,marginTop:20 }}>
+          <div onClick={()=>setHol(h=>!h)} style={{ background:hol?"#C9A84C18":"#0B1623",border:"1px solid "+(hol?"#C9A84C66":"#1C2E45"),borderRadius:6,padding:"8px 12px",cursor:"pointer",display:"flex",alignItems:"center",gap:8,marginTop:isMobile?0:20 }}>
             <div style={{ width:16,height:16,borderRadius:3,border:"2px solid "+(hol?"#C9A84C":"#1C2E45"),background:hol?"#C9A84C":"transparent",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,color:"#0B1623",fontWeight:900,flexShrink:0 }}>{hol&&"v"}</div>
             <div style={{ fontSize:12,color:hol?"#E2C57A":"#F0F4FA" }}>Feriado/Ferias {hol&&"- 2x pontos!"}</div>
           </div>
@@ -267,6 +269,7 @@ const RedeemModal = ({ prize, profile, onClose, onSubmit }) => {
 };
 
 const MemberDash = ({ profile, onLogout }) => {
+  const isMobile = useIsMobile();
   const [tab,setTab] = useState("dash");
   const [members,setMembers] = useState([]);
   const [myReqs,setMyReqs] = useState([]);
@@ -302,14 +305,14 @@ const MemberDash = ({ profile, onLogout }) => {
   return (
     <div style={{ minHeight:"100vh",background:"#0B1623",color:"#F0F4FA" }}>
       <div style={{ background:"#111E2E",borderBottom:"1px solid #1C2E45" }}>
-        <div style={{ maxWidth:900,margin:"0 auto",padding:"0 20px",display:"flex",alignItems:"center",justifyContent:"space-between",height:54 }}>
-          <img src={LOGO_SRC} alt="" style={{ height:32,objectFit:"contain" }} />
-          <div style={{ display:"flex",gap:2 }}>
-            {[["dash","Painel"],["rank","Ranking"],["prizes","Premios"]].map(([t,l])=>(
-              <button key={t} onClick={()=>setTab(t)} style={{ background:tab===t?"#C9A84C18":"transparent",color:tab===t?"#C9A84C":"#6B7FA0",border:"none",padding:"6px 14px",borderRadius:5,cursor:"pointer",fontSize:13,fontWeight:tab===t?700:400 }}>{l}</button>
+        <div style={{ maxWidth:900,margin:"0 auto",padding:"0 16px",display:"flex",alignItems:"center",justifyContent:"space-between",height:54 }}>
+          <img src={LOGO_SRC} alt="" style={{ height:28,objectFit:"contain",flexShrink:0 }} />
+          <div style={{ display:"flex",gap:1 }}>
+            {[["dash","Painel"],["rank","Ranking"],["prizes","Prêmios"]].map(([t,l])=>(
+              <button key={t} onClick={()=>setTab(t)} style={{ background:tab===t?"#C9A84C18":"transparent",color:tab===t?"#C9A84C":"#6B7FA0",border:"none",padding:isMobile?"6px 10px":"6px 14px",borderRadius:5,cursor:"pointer",fontSize:isMobile?12:13,fontWeight:tab===t?700:400,whiteSpace:"nowrap" }}>{l}</button>
             ))}
           </div>
-          <div style={{ display:"flex",alignItems:"center",gap:10 }}>
+          <div style={{ display:"flex",alignItems:"center",gap:8,flexShrink:0 }}>
             <Av ini={me.ini} me sz={30} />
             <button onClick={onLogout} style={{ background:"transparent",color:"#6B7FA0",border:"none",cursor:"pointer",fontSize:12 }}>Sair</button>
           </div>
@@ -331,16 +334,16 @@ const MemberDash = ({ profile, onLogout }) => {
       <div style={{ maxWidth:900,margin:"0 auto",padding:"24px 20px" }}>
         {tab==="dash" && (
           <div>
-            <div style={{ display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:20 }}>
+            <div style={{ display:"grid",gridTemplateColumns:isMobile?"repeat(3,1fr)":"repeat(3,1fr)",gap:isMobile?8:12,marginBottom:20 }}>
               {[
                 { label:"Pontos",val:me.pts,sub:"pts acumulados",valC:"#C9A84C" },
                 { label:"Ranking",val:"#"+rank,sub:"de "+members.length+" membros",valC:"#F0F4FA" },
                 { label:"Proximo",val:next?next.label:"Top!",sub:next?"faltam "+(next.pts-me.pts)+" pts":"Nivel maximo",valC:"#F0F4FA" },
               ].map(s=>(
-                <div key={s.label} data-card style={{ background:"#111E2E",border:"1px solid #1C2E45",borderRadius:10,padding:16 }}>
-                  <div style={{ fontSize:10,color:"#6B7FA0",letterSpacing:1,textTransform:"uppercase",marginBottom:6 }}>{s.label}</div>
-                  <div style={{ fontSize:28,fontWeight:900,color:s.valC,lineHeight:1,marginBottom:4 }}>{s.val}</div>
-                  <div style={{ fontSize:11,color:"#6B7FA0" }}>{s.sub}</div>
+                <div key={s.label} data-card style={{ background:"#111E2E",border:"1px solid #1C2E45",borderRadius:10,padding:isMobile?"10px 8px":16 }}>
+                  <div style={{ fontSize:isMobile?9:10,color:"#6B7FA0",letterSpacing:1,textTransform:"uppercase",marginBottom:4 }}>{s.label}</div>
+                  <div style={{ fontSize:isMobile?20:28,fontWeight:900,color:s.valC,lineHeight:1,marginBottom:3 }}>{s.val}</div>
+                  <div style={{ fontSize:isMobile?9:11,color:"#6B7FA0" }}>{s.sub}</div>
                   {s.label==="Proximo"&&next&&(
                     <div style={{ background:"#1C2E45",borderRadius:99,height:4,marginTop:8,overflow:"hidden" }}>
                       <div style={{ width:Math.min(((me.pts-(prev?.pts||0))/(next.pts-(prev?.pts||0)))*100,100)+"%",height:"100%",background:"#C9A84C",borderRadius:99 }} />
@@ -432,6 +435,7 @@ const MemberDash = ({ profile, onLogout }) => {
 };
 
 const AdminPanel = ({ profile, onLogout }) => {
+  const isMobile = useIsMobile();
   const [tab,setTab] = useState("reqs");
   const [reqs,setReqs] = useState([]);
   const [invites,setInvites] = useState([]);
@@ -522,12 +526,12 @@ const AdminPanel = ({ profile, onLogout }) => {
               <div style={{ fontSize:10,color:"#6B7FA0" }}>{profile.email}</div>
             </div>
           </div>
-          <div style={{ display:"flex",gap:2 }}>
+          <div style={{ display:"flex",gap:1 }}>
             {TABS.map(t=>(
-              <button key={t.id} onClick={()=>setTab(t.id)} style={{ background:tab===t.id?"#FF444418":"transparent",color:tab===t.id?"#FF9090":"#6B7FA0",border:"none",padding:"6px 14px",borderRadius:5,cursor:"pointer",fontSize:12,fontWeight:tab===t.id?700:400 }}>{t.label}</button>
+              <button key={t.id} onClick={()=>setTab(t.id)} style={{ background:tab===t.id?"#FF444418":"transparent",color:tab===t.id?"#FF9090":"#6B7FA0",border:"none",padding:isMobile?"5px 8px":"6px 14px",borderRadius:5,cursor:"pointer",fontSize:isMobile?11:12,fontWeight:tab===t.id?700:400,whiteSpace:"nowrap" }}>{t.label}</button>
             ))}
           </div>
-          <button onClick={onLogout} style={{ background:"transparent",color:"#6B7FA0",border:"1px solid #1C2E45",borderRadius:5,padding:"5px 12px",cursor:"pointer",fontSize:12 }}>Sair</button>
+          <button onClick={onLogout} style={{ background:"transparent",color:"#6B7FA0",border:"1px solid #1C2E45",borderRadius:5,padding:isMobile?"5px 8px":"5px 12px",cursor:"pointer",fontSize:12,whiteSpace:"nowrap" }}>Sair</button>
         </div>
       </div>
       <div style={{ background:"#0E1825",borderBottom:"1px solid #1C2E45",padding:"8px 20px" }}>
@@ -639,8 +643,9 @@ const AdminPanel = ({ profile, onLogout }) => {
   );
 };
 
-const Public = ({ onLogin, onRegister }) => (
-  <div style={{ minHeight:"100vh",background:"#0B1623",color:"#F0F4FA" }}>
+const Public = ({ onLogin, onRegister }) => {
+  const isMobile = useIsMobile();
+  return <div style={{ minHeight:"100vh",background:"#0B1623",color:"#F0F4FA" }}>
     <div style={{ padding:"70px 24px 50px",textAlign:"center" }}>
       <img src={LOGO_SRC} alt="" style={{ height:72,objectFit:"contain",display:"block",margin:"0 auto 16px" }} />
       <div style={{ color:"#C9A84C",fontSize:10,letterSpacing:4,textTransform:"uppercase",marginBottom:12 }}>Sinagoga Ner Israel - Perdizes</div>
@@ -656,7 +661,7 @@ const Public = ({ onLogin, onRegister }) => (
         <div style={{ color:"#C9A84C",fontSize:10,letterSpacing:3,textTransform:"uppercase",marginBottom:6 }}>Como funciona</div>
         <h2 style={{ fontSize:26,fontWeight:400,margin:0 }}>Tabela de Pontos</h2>
       </div>
-      <div style={{ display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:12,maxWidth:600,margin:"0 auto" }}>
+      <div style={{ display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(2,1fr)",gap:12,maxWidth:600,margin:"0 auto" }}>
         {[
           { title:"Shacharit",    icon:"Shacharit",    items:[{l:"Semana (Dom-Sex)",p:3},{l:"Shabbat",p:5}] },
           { title:"Mincha/Arvit", icon:"Mincha",       items:[{l:"Dom-Qui",p:3},{l:"Shabbat",p:4}] },
@@ -694,8 +699,8 @@ const Public = ({ onLogin, onRegister }) => (
         ))}
       </div>
     </div>
-  </div>
-);
+  </div>;
+};
 
 export default function App() {
   const [view,setView] = useState("loading");
