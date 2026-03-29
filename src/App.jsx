@@ -31,6 +31,8 @@ const ACTS = [
   { id:"streak",  label:"3 Rezas Seguidas",        sub:"Bonus",        pts:5,  cat:"bonus"     },
   { id:"shab_f",  label:"Shabbat Completo",        sub:"3 rezas",      pts:10, cat:"bonus"     },
   { id:"chag_r",  label:"Reza em Chaguim",         sub:"Festividades", pts:5,  cat:"bonus"     },
+  { id:"dupla",   label:"Estudo em Dupla 30min",   sub:"Bonus",        pts:8,  cat:"bonus"     },
+  { id:"tefila",  label:"Participar da Tefila",    sub:"Bonus",        pts:2,  cat:"bonus"     },
 ];
 const CAT = { shacharit:"Shacharit", mincha:"Mincha / Arvit", other:"Outros", bonus:"Bonus" };
 
