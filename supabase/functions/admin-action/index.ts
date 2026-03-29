@@ -92,7 +92,7 @@ Deno.serve(async (req) => {
     })
     if (!authError && authData.user) {
       const ini = name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
-      await db.from('profiles').insert({ id: authData.user.id, name, email: inv.email, ini, pts: 0, is_admin: false })
+      await db.from('profiles').insert({ id: authData.user.id, name, email: inv.email, ini, pts: 10, is_admin: false })
       await db.from('invite_requests').update({ status: 'approved' }).eq('id', inviteId)
       await sendEmail(inv.email, 'Parabens! Voce foi aprovado no Programa de Conquistas — Ner Israel',
         `<div style="font-family:sans-serif;max-width:500px;margin:0 auto;background:#0B1623;color:#F0F4FA;padding:40px 30px;border-radius:12px;">

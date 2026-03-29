@@ -274,6 +274,7 @@ const MemberDash = ({ profile, onLogout }) => {
   const [showPts,setShowPts] = useState(false);
   const [showRedeem,setShowRedeem] = useState(null);
   const [toast,setToast] = useState(null);
+  const [welcomeBanner,setWelcomeBanner] = useState(false);
   const [me,setMe] = useState(profile);
   const toast_ = (msg,ok=true) => { setToast({msg,ok}); setTimeout(()=>setToast(null),3500); };
   const load = useCallback(async () => {
@@ -285,6 +286,11 @@ const MemberDash = ({ profile, onLogout }) => {
     setMembers(mRes.data||[]); setMyReqs(rRes.data||[]);
     if (pRes.data) setMe(pRes.data);
     setLoading(false);
+    const key = `welcome_shown_${profile.id}`;
+    if (!localStorage.getItem(key)) {
+      localStorage.setItem(key, "1");
+      setWelcomeBanner(true);
+    }
   },[profile.id]);
   useEffect(()=>{ load(); },[load]);
   const sorted = [...members].sort((a,b)=>b.pts-a.pts);
@@ -310,6 +316,18 @@ const MemberDash = ({ profile, onLogout }) => {
         </div>
       </div>
       {toast && <Toast msg={toast.msg} ok={toast.ok} />}
+      {welcomeBanner && (
+        <div style={{ background:"linear-gradient(135deg,#1a3a1a,#0d2a0d)",borderBottom:"2px solid #4CAF50",padding:"14px 20px",display:"flex",alignItems:"center",justifyContent:"space-between" }}>
+          <div style={{ display:"flex",alignItems:"center",gap:12 }}>
+            <span style={{ fontSize:24 }}>🎉</span>
+            <div>
+              <div style={{ color:"#81C784",fontWeight:700,fontSize:15 }}>Bem-vindo ao Programa de Conquistas, {me.name.split(" ")[0]}!</div>
+              <div style={{ color:"#A5D6A7",fontSize:13,marginTop:2 }}>Você ganhou <strong style={{ color:"#C9A84C" }}>+10 pontos</strong> de bônus por se cadastrar. Bom jogo!</div>
+            </div>
+          </div>
+          <button onClick={()=>setWelcomeBanner(false)} style={{ background:"transparent",border:"none",color:"#81C784",fontSize:20,cursor:"pointer",lineHeight:1 }}>×</button>
+        </div>
+      )}
       <div style={{ maxWidth:900,margin:"0 auto",padding:"24px 20px" }}>
         {tab==="dash" && (
           <div>
