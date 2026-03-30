@@ -89,7 +89,7 @@ const Login = ({ onBack }) => {
         email: email.trim().toLowerCase(),
         options: { shouldCreateUser: false }
       });
-      if (error) { setErr("Email não encontrado. Solicite um convite."); setLoading(false); }
+      if (error) { setErr(error.message); setLoading(false); }
       else { setSent(true); setLoading(false); }
     }
   };
