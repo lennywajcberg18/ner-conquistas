@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
     await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: 'Ner Israel <onboarding@resend.dev>', to: [to], subject, html })
+      body: JSON.stringify({ from: 'Ner Israel <noreply@conquistasner.com.br>', to: [to], subject, html })
     })
   }
 
