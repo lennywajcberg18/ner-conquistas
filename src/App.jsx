@@ -68,9 +68,15 @@ const Login = ({ onBack }) => {
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [adminMode, setAdminMode] = useState(false);
+  const [logoClicks, setLogoClicks] = useState(0);
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [err, setErr] = useState("");
+  const handleLogoClick = () => {
+    const next = logoClicks + 1;
+    setLogoClicks(next);
+    if (next >= 5) { setAdminMode(true); setLogoClicks(0); }
+  };
 
   const go = async () => {
     if (!email) return;
@@ -101,7 +107,7 @@ const Login = ({ onBack }) => {
     <div style={{ minHeight:"100vh",background:"#0B1623",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:24 }}>
       <div style={{ width:"100%",maxWidth:340 }}>
         <div style={{ textAlign:"center",marginBottom:28 }}>
-          <img src={LOGO_SRC} alt="Ner Israel" style={{ height:60,width:"auto",objectFit:"contain",display:"block",margin:"0 auto 10px" }} />
+          <img src={LOGO_SRC} alt="Ner Israel" onClick={handleLogoClick} style={{ height:60,width:"auto",objectFit:"contain",display:"block",margin:"0 auto 10px",cursor:"default" }} />
           <div style={{ color:"#6B7FA0",fontSize:12 }}>Programa de Conquistas</div>
         </div>
         <div style={{ background:"#111E2E",border:"1px solid #1C2E45",borderRadius:10,padding:"22px 20px" }}>
@@ -112,11 +118,9 @@ const Login = ({ onBack }) => {
             {loading?"Entrando...":"Entrar"}
           </button>
         </div>
-        <div style={{ textAlign:"center",marginTop:16,display:"flex",flexDirection:"column",gap:8 }}>
+        <div style={{ textAlign:"center",marginTop:16 }}>
           <button onClick={onBack} style={{ background:"transparent",color:"#9BAEC8",border:"none",fontSize:13,cursor:"pointer",textDecoration:"underline" }}>Voltar</button>
-          <button onClick={()=>{setAdminMode(m=>!m);setErr("");}} style={{ background:"transparent",color:"#2E4060",border:"none",fontSize:11,cursor:"pointer" }}>
-            {adminMode?"← Voltar ao login normal":"Entrar como admin"}
-          </button>
+          {adminMode && <div style={{ marginTop:8 }}><button onClick={()=>{setAdminMode(false);setPass("");setErr("");}} style={{ background:"transparent",color:"#2E4060",border:"none",fontSize:11,cursor:"pointer" }}>← Voltar ao login normal</button></div>}
         </div>
       </div>
     </div>
