@@ -82,18 +82,19 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ ok: true }), { headers: { ...cors, 'Content-Type': 'application/json' } })
   }
 
-  // ── APPROVE INVITE (creates user with password and sends email) ──
+  // ── APPROVE INVITE (creates user and sends magic link email) ──
   if (action === 'approve_invite') {
     const { data: inv } = await db.from('invite_requests').select('*').eq('id', inviteId).single()
     const name = inv.name.trim().split(/\s+/).map((w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
-    const tempPassword = name.split(' ')[0].toLowerCase() + '2026'
     const { data: authData, error: authError } = await db.auth.admin.createUser({
-      email: inv.email, password: tempPassword, email_confirm: true
+      email: inv.email, email_confirm: true
     })
     if (!authError && authData.user) {
       const ini = name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
       await db.from('profiles').insert({ id: authData.user.id, name, email: inv.email, ini, pts: 10, is_admin: false })
       await db.from('invite_requests').update({ status: 'approved' }).eq('id', inviteId)
+      const { data: linkData } = await db.auth.admin.generateLink({ type: 'magiclink', email: inv.email })
+      const magicLink = linkData?.properties?.action_link || APP_URL
       await sendEmail(inv.email, 'Parabens! Voce foi aprovado no Programa de Conquistas — Ner Israel',
         `<div style="font-family:sans-serif;max-width:500px;margin:0 auto;background:#0B1623;color:#F0F4FA;padding:40px 30px;border-radius:12px;">
           <div style="text-align:center;margin-bottom:24px;">
@@ -102,19 +103,14 @@ Deno.serve(async (req) => {
           </div>
           <p style="font-size:16px;line-height:1.6;">Ola <strong>${name}</strong>!</p>
           <p style="font-size:15px;line-height:1.6;">Parabens! Sua solicitacao foi aprovada. Voce agora faz parte do <strong style="color:#C9A84C;">Programa de Conquistas</strong> do Ner Israel.</p>
-          <p style="font-size:15px;line-height:1.6;">Participe das atividades, acumule pontos e troque por premios incriveis!</p>
-          <div style="background:#111E2E;border:1px solid #1C2E45;border-radius:10px;padding:20px;margin:24px 0;">
-            <div style="font-size:11px;color:#6B7FA0;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;">Seus dados de acesso</div>
-            <p style="margin:0 0 6px;font-size:14px;"><strong style="color:#6B7FA0;">Email:</strong> <span style="color:#C9A84C;">${inv.email}</span></p>
-            <p style="margin:0;font-size:14px;"><strong style="color:#6B7FA0;">Senha:</strong> <span style="color:#C9A84C;">${tempPassword}</span></p>
+          <p style="font-size:15px;line-height:1.6;">Clique no botao abaixo para acessar sua conta. Nas proximas vezes, basta digitar seu email e receber um novo link.</p>
+          <div style="text-align:center;margin:32px 0;">
+            <a href="${magicLink}" style="background:linear-gradient(135deg,#C9A84C,#E2C57A);color:#0B1623;padding:16px 36px;border-radius:8px;text-decoration:none;font-weight:800;font-size:16px;display:inline-block;">Acessar minha conta →</a>
           </div>
-          <div style="text-align:center;margin-top:28px;">
-            <a href="${APP_URL}" style="background:linear-gradient(135deg,#C9A84C,#E2C57A);color:#0B1623;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:800;font-size:15px;display:inline-block;">Acessar o sistema</a>
-          </div>
-          <p style="font-size:11px;color:#6B7FA0;text-align:center;margin-top:24px;">Recomendamos que voce troque sua senha apos o primeiro acesso.</p>
+          <p style="font-size:12px;color:#6B7FA0;text-align:center;margin-top:8px;">Este link expira em 1 hora. Se precisar de um novo, acesse o sistema e clique em "Entrar".</p>
         </div>`)
     }
-    return new Response(JSON.stringify({ ok: true, password: tempPassword, name }), { headers: { ...cors, 'Content-Type': 'application/json' } })
+    return new Response(JSON.stringify({ ok: true, name }), { headers: { ...cors, 'Content-Type': 'application/json' } })
   }
 
   // ── REJECT INVITE ──
