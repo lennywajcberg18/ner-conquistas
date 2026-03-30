@@ -676,7 +676,7 @@ const Public = ({ onLogin, onRegister }) => {
           { title:"Shacharit",    icon:"Shacharit",    items:[{l:"Semana (Dom-Sex)",p:3},{l:"Shabbat",p:5}] },
           { title:"Mincha/Arvit", icon:"Mincha",       items:[{l:"Dom-Qui",p:3},{l:"Shabbat",p:4}] },
           { title:"Outros",       icon:"Outros",       items:[{l:"Palestras/Shiurim",p:2},{l:"Eventos Chaguim",p:2}] },
-          { title:"Bonus",        icon:"Bonus",        items:[{l:"Trazer amigo",p:3},{l:"3 rezas seguidas",p:5},{l:"Shabbat completo",p:10},{l:"Rezas Chaguim",p:5},{l:"Feriados/Ferias",p:"2x"}] },
+          { title:"Bonus",        icon:"Bonus",        items:[{l:"Trazer amigo",p:3},{l:"3 rezas seguidas",p:5},{l:"Shabbat completo",p:10},{l:"Rezas Chaguim",p:5},{l:"Estudo em dupla 30min",p:8},{l:"Participar da Tefila",p:2},{l:"Feriados/Ferias",p:"2x"}] },
         ].map(c=>(
           <div key={c.title} data-card style={{ background:"#111E2E",border:"1px solid #1C2E45",borderRadius:10,padding:18 }}>
             <div style={{ fontSize:10,fontWeight:700,letterSpacing:1,textTransform:"uppercase",color:"#C9A84C",marginBottom:12 }}>{c.title}</div>
