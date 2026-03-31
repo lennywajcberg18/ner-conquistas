@@ -312,14 +312,19 @@ const MemberDash = ({ profile, onLogout }) => {
       supabase.from("requests").select("*").eq("member_id",profile.id).order("created_at",{ascending:false}),
       supabase.from("profiles").select("*").eq("id",profile.id).single()
     ]);
-    setMembers(mRes.data||[]); setMyReqs(rRes.data||[]);
-    if (pRes.data) setMe(pRes.data);
-    setLoading(false);
-    const key = `welcome_shown_${profile.id}`;
-    if (!localStorage.getItem(key)) {
-      localStorage.setItem(key, "1");
+    setMyReqs(rRes.data||[]);
+    let currentProfile = pRes.data;
+    let membersList = mRes.data || [];
+    if (currentProfile && !currentProfile.signup_bonus) {
+      const newPts = (currentProfile.pts || 0) + 10;
+      await supabase.from("profiles").update({ pts: newPts, signup_bonus: true }).eq("id", profile.id);
+      currentProfile = { ...currentProfile, pts: newPts, signup_bonus: true };
+      membersList = membersList.map(m => m.id === profile.id ? currentProfile : m);
       setWelcomeBanner(true);
     }
+    if (currentProfile) setMe(currentProfile);
+    setMembers(membersList);
+    setLoading(false);
   },[profile.id]);
   useEffect(()=>{ load(); },[load]);
   const sorted = [...members].sort((a,b)=>b.pts-a.pts);
