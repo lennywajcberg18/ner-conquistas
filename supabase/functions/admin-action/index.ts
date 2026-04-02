@@ -122,6 +122,13 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ ok: true }), { headers: { ...cors, 'Content-Type': 'application/json' } })
   }
 
+  // ── SET MEMBER PTS ──
+  if (action === 'set_pts') {
+    const { memberId, pts } = body
+    await db.from('profiles').update({ pts: Math.max(0, parseInt(pts)) }).eq('id', memberId)
+    return new Response(JSON.stringify({ ok: true }), { headers: { ...cors, 'Content-Type': 'application/json' } })
+  }
+
   // ── REMOVE MEMBER ──
   if (action === 'remove_member') {
     const { memberId } = body

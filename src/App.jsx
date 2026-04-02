@@ -474,6 +474,7 @@ const AdminPanel = ({ profile, onLogout }) => {
   const [loading,setLoading] = useState(true);
   const [toast,setToast] = useState(null);
   const [acting,setActing] = useState(null);
+  const [editingPts,setEditingPts] = useState(null); // { id, val }
   const toast_ = (msg,ok=true) => { setToast({msg,ok}); setTimeout(()=>setToast(null),3000); };
   const invokeAdmin = async (body) => {
     const { data, error } = await supabase.functions.invoke("admin-action", { body });
@@ -641,7 +642,27 @@ const AdminPanel = ({ profile, onLogout }) => {
                       <div style={{ width:20,textAlign:"center",fontSize:11,color:"#6B7FA0" }}>{i+1}</div>
                       <Av ini={m.ini} sz={32} />
                       <div style={{ flex:1 }}><div style={{ fontSize:13 }}>{m.name}</div><div style={{ fontSize:10,color:"#6B7FA0" }}>{m.email}</div></div>
-                      <div style={{ fontWeight:700,fontSize:15,marginRight:8 }}>{m.pts} pts</div>
+                      {editingPts?.id === m.id ? (
+                        <div style={{ display:"flex",alignItems:"center",gap:6 }}>
+                          <input type="number" value={editingPts.val} onChange={e=>setEditingPts({...editingPts,val:e.target.value})}
+                            style={{ width:64,background:"#0B1623",color:"#F0F4FA",border:"1px solid #C9A84C",borderRadius:5,padding:"4px 8px",fontSize:13,fontWeight:700 }} />
+                          <button onClick={async ()=>{
+                            const pts = parseInt(editingPts.val);
+                            if(isNaN(pts)||pts<0) return;
+                            setActing(m.id);
+                            const { error } = await invokeAdmin({ action:"set_pts", memberId:m.id, pts });
+                            if(!error){ setMembers(prev=>prev.map(x=>x.id===m.id?{...x,pts}:x)); toast_("Pontos atualizados!"); }
+                            else toast_("Erro: "+error,false);
+                            setEditingPts(null); setActing(null);
+                          }} style={{ background:"#C9A84C",color:"#0B1623",border:"none",padding:"4px 10px",borderRadius:5,cursor:"pointer",fontWeight:700,fontSize:11 }}>OK</button>
+                          <button onClick={()=>setEditingPts(null)} style={{ background:"transparent",color:"#6B7FA0",border:"1px solid #6B7FA066",padding:"4px 8px",borderRadius:5,cursor:"pointer",fontSize:11 }}>✕</button>
+                        </div>
+                      ) : (
+                        <div style={{ display:"flex",alignItems:"center",gap:6 }}>
+                          <div style={{ fontWeight:700,fontSize:15 }}>{m.pts} pts</div>
+                          <button onClick={()=>setEditingPts({id:m.id,val:m.pts})} style={{ background:"transparent",color:"#C9A84C",border:"1px solid #C9A84C66",padding:"3px 8px",borderRadius:5,cursor:"pointer",fontSize:11 }}>editar</button>
+                        </div>
+                      )}
                       {!m.is_admin && <button onClick={async ()=>{ if(!window.confirm("Remover "+m.name+"?")) return; setActing(m.id); const { error } = await invokeAdmin({ action:"remove_member", memberId:m.id }); if(!error){ setMembers(prev=>prev.filter(x=>x.id!==m.id)); toast_("Removido"); } else toast_("Erro ao remover",false); setActing(null); }} disabled={acting===m.id} style={{ background:"transparent",color:"#FF7777",border:"1px solid #FF777766",padding:"4px 10px",borderRadius:5,cursor:"pointer",fontWeight:700,fontSize:11,opacity:acting===m.id?0.5:1 }}>Remover</button>}
                     </div>
                   ))}
