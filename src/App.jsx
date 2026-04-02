@@ -476,20 +476,9 @@ const AdminPanel = ({ profile, onLogout }) => {
   const [acting,setActing] = useState(null);
   const toast_ = (msg,ok=true) => { setToast({msg,ok}); setTimeout(()=>setToast(null),3000); };
   const invokeAdmin = async (body) => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return { data: null, error: "No session" };
-    const url = process.env.REACT_APP_SUPABASE_URL + "/functions/v1/admin-action";
-    const res = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + session.access_token,
-        "apikey": process.env.REACT_APP_SUPABASE_KEY
-      },
-      body: JSON.stringify(body)
-    });
-    if (!res.ok) return { data: null, error: await res.text() };
-    return { data: await res.json(), error: null };
+    const { data, error } = await supabase.functions.invoke("admin-action", { body });
+    if (error) return { data: null, error: error.message || JSON.stringify(error) };
+    return { data, error: null };
   };
   const load = useCallback(async () => {
     setLoading(true);
