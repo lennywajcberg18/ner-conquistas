@@ -91,7 +91,7 @@ Deno.serve(async (req) => {
     })
     if (!authError && authData.user) {
       const ini = name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
-      await db.from('profiles').insert({ id: authData.user.id, name, email: inv.email, ini, pts: 0, is_admin: false })
+      await db.from('profiles').insert({ id: authData.user.id, name, email: inv.email, ini, pts: 10, is_admin: false })
       await db.from('invite_requests').update({ status: 'approved' }).eq('id', inviteId)
       const { data: linkData } = await db.auth.admin.generateLink({ type: 'magiclink', email: inv.email })
       const magicLink = linkData?.properties?.action_link || APP_URL
