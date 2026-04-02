@@ -504,36 +504,24 @@ const AdminPanel = ({ profile, onLogout }) => {
   useEffect(()=>{ load(); },[load]);
   const doAction = async (action,id,isInvite=false) => {
     setActing(id);
-    let ok = false, approveMsg = null;
+    let ok = false, approveMsg = null, errMsg = null;
     try {
-      if (action === "reject_invite") {
-        await supabase.from("invite_requests").update({ status:"rejected" }).eq("id",id);
-        ok = true;
-      } else if (action === "reject_request") {
-        await supabase.from("requests").update({ status:"rejected" }).eq("id",id);
-        ok = true;
-      } else if (action === "approve_request") {
-        const { data: r } = await supabase.from("requests").select("*").eq("id",id).single();
-        await supabase.from("requests").update({ status:"approved" }).eq("id",id);
-        const { data: p } = await supabase.from("profiles").select("pts").eq("id",r.member_id).single();
-        if (r.type === "points") {
-          await supabase.from("profiles").update({ pts: p.pts + r.pts }).eq("id",r.member_id);
-        } else {
-          await supabase.from("profiles").update({ pts: Math.max(0, p.pts - r.pts) }).eq("id",r.member_id);
-        }
-        ok = true;
-      } else if (action === "approve_invite") {
+      if (action === "reject_invite" || action === "approve_invite") {
         const { data, error } = await invokeAdmin({ action, inviteId: id });
         if (!error) { ok = true; if (data?.password) approveMsg = "Aprovado! Senha: " + data.password; }
-        else console.error("approve_invite error:", error);
+        else { errMsg = error; console.error(action + " error:", error); }
+      } else if (action === "reject_request" || action === "approve_request") {
+        const { error } = await invokeAdmin({ action, requestId: id });
+        if (!error) ok = true;
+        else { errMsg = error; console.error(action + " error:", error); }
       }
-    } catch(e) { console.error("doAction error:", e); }
+    } catch(e) { errMsg = e.message; console.error("doAction error:", e); }
     if (ok) {
       toast_(approveMsg || (action.includes("approve")?"Aprovado!":"Rejeitado"),action.includes("approve"));
       if (isInvite) setInvites(prev=>prev.map(i=>i.id===id?{...i,status:action.includes("approve")?"approved":"rejected"}:i));
       else setReqs(prev=>prev.map(r=>r.id===id?{...r,status:action.includes("approve")?"approved":"rejected"}:r));
       setTimeout(load, 1000);
-    } else toast_("Erro ao processar",false);
+    } else toast_("Erro: " + (errMsg||"tente novamente"), false);
     setActing(null);
   };
   const pendReqs = reqs.filter(r=>r.status==="pending");
