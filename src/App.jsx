@@ -477,7 +477,11 @@ const AdminPanel = ({ profile, onLogout }) => {
   const toast_ = (msg,ok=true) => { setToast({msg,ok}); setTimeout(()=>setToast(null),3000); };
   const invokeAdmin = async (body) => {
     const { data, error } = await supabase.functions.invoke("admin-action", { body });
-    if (error) return { data: null, error: error.message || JSON.stringify(error) };
+    if (error) {
+      let msg = error.message;
+      try { msg = await error.context.text(); } catch {}
+      return { data: null, error: msg };
+    }
     return { data, error: null };
   };
   const load = useCallback(async () => {
