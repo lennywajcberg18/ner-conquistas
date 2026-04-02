@@ -327,7 +327,7 @@ const MemberDash = ({ profile, onLogout }) => {
     setLoading(false);
   },[profile.id]);
   useEffect(()=>{ load(); },[load]);
-  const sorted = [...members].sort((a,b)=>b.pts-a.pts);
+  const sorted = [...members].filter(m=>!m.is_admin).sort((a,b)=>b.pts-a.pts);
   const rank = sorted.findIndex(m=>m.id===me.id)+1;
   const next = PRIZES.find(p=>p.pts>me.pts);
   const prev = [...PRIZES].reverse().find(p=>me.pts>=p.pts);
