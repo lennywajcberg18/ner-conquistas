@@ -316,10 +316,8 @@ const MemberDash = ({ profile, onLogout }) => {
     let currentProfile = pRes.data;
     let membersList = mRes.data || [];
     if (currentProfile && !currentProfile.signup_bonus) {
-      const newPts = (currentProfile.pts || 0) + 10;
-      await supabase.from("profiles").update({ pts: newPts, signup_bonus: true }).eq("id", profile.id);
-      currentProfile = { ...currentProfile, pts: newPts, signup_bonus: true };
-      membersList = membersList.map(m => m.id === profile.id ? currentProfile : m);
+      await supabase.from("profiles").update({ signup_bonus: true }).eq("id", profile.id);
+      currentProfile = { ...currentProfile, signup_bonus: true };
       setWelcomeBanner(true);
     }
     if (currentProfile) setMe(currentProfile);
