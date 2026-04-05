@@ -475,7 +475,12 @@ const AdminPanel = ({ profile, onLogout }) => {
   const [editingPts,setEditingPts] = useState(null); // { id, val }
   const toast_ = (msg,ok=true) => { setToast({msg,ok}); setTimeout(()=>setToast(null),3000); };
   const invokeAdmin = async (body) => {
-    const { data, error } = await supabase.functions.invoke("admin-action", { body });
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return { data: null, error: "Sessao expirada. Faca login novamente." };
+    const { data, error } = await supabase.functions.invoke("admin-action", {
+      body,
+      headers: { Authorization: "Bearer " + session.access_token },
+    });
     if (error) {
       let msg = error.message;
       try { msg = await error.context.text(); } catch {}
