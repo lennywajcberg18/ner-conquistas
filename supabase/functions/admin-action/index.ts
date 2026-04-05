@@ -61,11 +61,11 @@ Deno.serve(async (req) => {
     const { data: p } = await db.from('profiles').select('pts, email').eq('id', r.member_id).single()
 
     if (r.type === 'points') {
-      await db.from('profiles').update({ pts: p.pts + r.pts }).eq('id', r.member_id)
+      await db.from('profiles').update({ pts: Number(p.pts) + Number(r.pts) }).eq('id', r.member_id)
       await sendEmail(p.email, `✅ ${r.pts} pontos aprovados!`,
         `<p>Olá ${r.member_name}!</p><p>Sua solicitação de <strong>+${r.pts} pontos</strong> foi aprovada!</p><p>Atividade: ${r.activity}</p><p>Acesse o programa: <a href="${APP_URL}">${APP_URL}</a></p>`)
     } else {
-      await db.from('profiles').update({ pts: Math.max(0, p.pts - r.pts) }).eq('id', r.member_id)
+      await db.from('profiles').update({ pts: Math.max(0, Number(p.pts) - Number(r.pts)) }).eq('id', r.member_id)
       await sendEmail(p.email, `🎁 Resgate aprovado!`,
         `<p>Olá ${r.member_name}!</p><p>Seu resgate foi aprovado!</p><p>Item: ${r.activity}</p><p>Pontos debitados: ${r.pts}</p>`)
     }
@@ -89,27 +89,29 @@ Deno.serve(async (req) => {
     const { data: authData, error: authError } = await db.auth.admin.createUser({
       email: inv.email, email_confirm: true
     })
-    if (!authError && authData.user) {
-      const ini = name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
-      await db.from('profiles').insert({ id: authData.user.id, name, email: inv.email, ini, pts: 10, is_admin: false })
-      await db.from('invite_requests').update({ status: 'approved' }).eq('id', inviteId)
-      const { data: linkData } = await db.auth.admin.generateLink({ type: 'magiclink', email: inv.email })
-      const magicLink = linkData?.properties?.action_link || APP_URL
-      await sendEmail(inv.email, 'Parabens! Voce foi aprovado no Programa de Conquistas — Ner Israel',
-        `<div style="font-family:sans-serif;max-width:500px;margin:0 auto;background:#0B1623;color:#F0F4FA;padding:40px 30px;border-radius:12px;">
-          <div style="text-align:center;margin-bottom:24px;">
-            <div style="color:#C9A84C;font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;">Sinagoga Ner Israel</div>
-            <h1 style="font-size:22px;font-weight:700;margin:0 0 6px;color:#F0F4FA;">Programa de Conquistas</h1>
-          </div>
-          <p style="font-size:16px;line-height:1.6;">Ola <strong>${name}</strong>!</p>
-          <p style="font-size:15px;line-height:1.6;">Parabens! Sua solicitacao foi aprovada. Voce agora faz parte do <strong style="color:#C9A84C;">Programa de Conquistas</strong> do Ner Israel.</p>
-          <p style="font-size:15px;line-height:1.6;">Clique no botao abaixo para acessar sua conta. Nas proximas vezes, basta digitar seu email e receber um novo link.</p>
-          <div style="text-align:center;margin:32px 0;">
-            <a href="${magicLink}" style="background:linear-gradient(135deg,#C9A84C,#E2C57A);color:#0B1623;padding:16px 36px;border-radius:8px;text-decoration:none;font-weight:800;font-size:16px;display:inline-block;">Acessar minha conta →</a>
-          </div>
-          <p style="font-size:12px;color:#6B7FA0;text-align:center;margin-top:8px;">Este link expira em 1 hora. Se precisar de um novo, acesse o sistema e clique em "Entrar".</p>
-        </div>`)
+    if (authError || !authData.user) {
+      const msg = authError?.message || 'Falha ao criar usuario'
+      return new Response(JSON.stringify({ error: msg }), { status: 400, headers: { ...cors, 'Content-Type': 'application/json' } })
     }
+    const ini = name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+    await db.from('profiles').insert({ id: authData.user.id, name, email: inv.email, ini, pts: 10, is_admin: false })
+    await db.from('invite_requests').update({ status: 'approved' }).eq('id', inviteId)
+    const { data: linkData } = await db.auth.admin.generateLink({ type: 'magiclink', email: inv.email })
+    const magicLink = linkData?.properties?.action_link || APP_URL
+    await sendEmail(inv.email, 'Parabens! Voce foi aprovado no Programa de Conquistas — Ner Israel',
+      `<div style="font-family:sans-serif;max-width:500px;margin:0 auto;background:#0B1623;color:#F0F4FA;padding:40px 30px;border-radius:12px;">
+        <div style="text-align:center;margin-bottom:24px;">
+          <div style="color:#C9A84C;font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;">Sinagoga Ner Israel</div>
+          <h1 style="font-size:22px;font-weight:700;margin:0 0 6px;color:#F0F4FA;">Programa de Conquistas</h1>
+        </div>
+        <p style="font-size:16px;line-height:1.6;">Ola <strong>${name}</strong>!</p>
+        <p style="font-size:15px;line-height:1.6;">Parabens! Sua solicitacao foi aprovada. Voce agora faz parte do <strong style="color:#C9A84C;">Programa de Conquistas</strong> do Ner Israel.</p>
+        <p style="font-size:15px;line-height:1.6;">Clique no botao abaixo para acessar sua conta. Nas proximas vezes, basta digitar seu email e receber um novo link.</p>
+        <div style="text-align:center;margin:32px 0;">
+          <a href="${magicLink}" style="background:linear-gradient(135deg,#C9A84C,#E2C57A);color:#0B1623;padding:16px 36px;border-radius:8px;text-decoration:none;font-weight:800;font-size:16px;display:inline-block;">Acessar minha conta →</a>
+        </div>
+        <p style="font-size:12px;color:#6B7FA0;text-align:center;margin-top:8px;">Este link expira em 1 hora. Se precisar de um novo, acesse o sistema e clique em "Entrar".</p>
+      </div>`)
     return new Response(JSON.stringify({ ok: true, name }), { headers: { ...cors, 'Content-Type': 'application/json' } })
   }
 
