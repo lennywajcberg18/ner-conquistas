@@ -26,8 +26,8 @@ supabase link --project-ref oifekqqpvnmextkrajoc
 
 Configure os secrets das Edge Functions:
 ```bash
-supabase secrets set RESEND_API_KEY=re_bWsNMhHd_91c2Cf2GJzyZEyBaPFZPQ7Ui
-supabase secrets set ADMIN_EMAIL=lennywajcberg18@gmail.com
+supabase secrets set "RESEND_API_KEY=<sua chave da Resend>"
+supabase secrets set "ADMIN_EMAIL=<e-mail do admin>"
 supabase secrets set APP_URL=https://ner-conquistas.vercel.app
 ```
 
